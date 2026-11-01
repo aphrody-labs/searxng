@@ -26,15 +26,16 @@ RUN set -eux -o pipefail; \
 
 FROM docker.io/searxng/base:searxng AS dist
 
-COPY --chown=977:977 --from=builder /usr/local/searxng/.venv/ ./.venv/
-COPY --chown=977:977 --from=builder /usr/local/searxng/searx/ ./searx/
-COPY --chown=977:977 ./container/ ./
-COPY --chown=977:977 ./searx/version_frozen.py ./searx/
-
-ARG CREATED="0001-01-01T00:00:00Z"
 ARG VERSION="unknown"
 ARG VCS_URL="unknown"
 ARG VCS_REVISION="unknown"
+
+COPY --chown=977:977 --from=builder /usr/local/searxng/.venv/ ./.venv/
+COPY --chown=977:977 --from=builder /usr/local/searxng/searx/ ./searx/
+COPY --chown=977:977 ./container/ ./
+RUN printf '%s\n' '# SPDX-License-Identifier: AGPL-3.0-or-later' "VERSION_STRING = \"$VERSION\"" "VERSION_TAG = \"$VERSION\"" "DOCKER_TAG = \"$VERSION\"" "GIT_URL = \"$VCS_URL\"" "GIT_BRANCH = \"$VCS_REVISION\"" > ./searx/version_frozen.py
+
+ARG CREATED="0001-01-01T00:00:00Z"
 
 LABEL org.opencontainers.image.created="$CREATED" \
     org.opencontainers.image.description="SearXNG is a metasearch engine. Users are neither tracked nor profiled." \
